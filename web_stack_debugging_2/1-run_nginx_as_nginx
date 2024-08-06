@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Update Nginx configuration to use port 8080 and run as the nginx user
 
 # Ensure Nginx is installed
