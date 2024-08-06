@@ -1,36 +1,8 @@
-#!/bin/bash
-# Update Nginx configuration to use port 8080 and run as the nginx user
-
-# Ensure Nginx is installed
-if ! command -v nginx &> /dev/null
-then
-    echo "Nginx is not installed. Installing Nginx..."
-    apt-get update && apt-get install -y nginx
-fi
-
-# Create the nginx user if it doesn't exist
-if ! id -u nginx &> /dev/null
-then
-    echo "Creating nginx user..."
-    useradd -r -s /sbin/nologin nginx
-fi
-
-# Update Nginx configuration file to use port 8080 and run as nginx user
-NGINX_CONF="/etc/nginx/nginx.conf"
-if [ -f "$NGINX_CONF" ]; then
-    echo "Updating Nginx configuration..."
-    sed -i 's/^user .*/user nginx;/g' $NGINX_CONF
-    sed -i 's/^listen .*/listen 8080;/g' /etc/nginx/sites-available/default
-else
-    echo "Nginx configuration file not found!"
-    exit 1
-fi
-
-# Change ownership of Nginx directories to the nginx user
-chown -R nginx:nginx /var/log/nginx /var/lib/nginx /var/www/html
-
-# Restart Nginx to apply changes
-echo "Restarting Nginx..."
-systemctl restart nginx
-
-echo "Nginx is now running as nginx user on port 8080."
+#!/usr/bin/env bash
+# nginx must be running as nginx user
+# nginx must be listening on all active IPs on port 8080
+pkill -f apache2
+chmod 644 /etc/nginx/nginx.conf
+sed -i 's/80/8080 default_server/g' /etc/nginx/sites-available/default
+sed -i '1 i user nginx;' /etc/nginx/nginx.conf
+sudo -u nginx service nginx restart
